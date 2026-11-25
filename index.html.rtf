@@ -1,0 +1,140 @@
+{\rtf1\ansi\ansicpg1252\cocoartf2709
+\cocoatextscaling0\cocoaplatform0{\fonttbl\f0\fswiss\fcharset0 Helvetica;}
+{\colortbl;\red255\green255\blue255;}
+{\*\expandedcolortbl;;}
+\margl1440\margr1440\vieww11520\viewh8400\viewkind0
+\pard\tx720\tx1440\tx2160\tx2880\tx3600\tx4320\tx5040\tx5760\tx6480\tx7200\tx7920\tx8640\pardirnatural\partightenfactor0
+
+\f0\fs24 \cf0 <!DOCTYPE html>\
+<html lang="en">\
+<head>\
+  <meta charset="UTF-8" />\
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />\
+  <title>My Jagged Learning Profile</title>\
+  <script src="https://jsdelivr.net"></script>\
+  <style>\
+    * \{ box-sizing: border-box; font-family: system-ui, -apple-system, sans-serif; \}\
+    body \{ margin: 0; padding: 20px; background: #f8fafc; color: #1e293b; \}\
+    .container \{ max-width: 900px; margin: 0 auto; background: #ffffff; padding: 24px; border-radius: 12px; box-shadow: 0 2px 10px rgba(0,0,0,0.06); \}\
+    h2 \{ margin-top: 0; font-size: 1.4rem; \}\
+    p.subtitle \{ color: #475569; margin-bottom: 24px; font-size: 0.95rem; \}\
+    .grid \{ display: grid; grid-template-columns: 1fr 1.3fr; gap: 28px; align-items: center; \}\
+    @media (max-width: 720px) \{ .grid \{ grid-template-columns: 1fr; \} \}\
+    .slider-group \{ margin-bottom: 16px; \}\
+    .slider-header \{ display: flex; justify-content: space-between; font-weight: 600; font-size: 0.9rem; margin-bottom: 4px; \}\
+    input[type="range"] \{ width: 100%; accent-color: #2563eb; cursor: pointer; \}\
+    .chart-box \{ position: relative; width: 100%; min-height: 320px; \}\
+    .actions \{ margin-top: 20px; display: flex; gap: 10px; \}\
+    button \{ background: #2563eb; color: #fff; border: none; padding: 10px 16px; border-radius: 6px; font-weight: 600; cursor: pointer; font-size: 0.9rem; \}\
+    button:hover \{ background: #1d4ed8; \}\
+    button.secondary \{ background: #e2e8f0; color: #1e293b; \}\
+    button.secondary:hover \{ background: #cbd5e1; \}\
+  </style>\
+</head>\
+<body>\
+  <div class="container">\
+    <h2>My Jagged Learning Profile</h2>\
+    <p class="subtitle">Rate yourself from 1 (Developing) to 5 (Strength) across each dimension to see your unique profile.</p>\
+\
+    <div class="grid">\
+      <div id="controls"></div>\
+      <div>\
+        <div class="chart-box">\
+          <canvas id="profileChart"></canvas>\
+        </div>\
+        <div class="actions">\
+          <button id="downloadBtn">Download Chart Image</button>\
+          <button id="resetBtn" class="secondary">Reset</button>\
+        </div>\
+      </div>\
+    </div>\
+  </div>\
+\
+  <script>\
+    // 1. Customize your course dimensions here\
+    const dimensions = [\
+      "Critical Thinking",\
+      "Written Communication",\
+      "Quantitative Reasoning",\
+      "Collaboration",\
+      "Time Management",\
+      "Creative Problem Solving",\
+      "Tech & Digital Fluency"\
+    ];\
+\
+    let scores = dimensions.map(() => 3);\
+\
+    // 2. Build sliders dynamically\
+    const controlsEl = document.getElementById("controls");\
+    dimensions.forEach((label, index) => \{\
+      const group = document.createElement("div");\
+      group.className = "slider-group";\
+      group.innerHTML = `\
+        <div class="slider-header">\
+          <label for="dim-$\{index\}">$\{label\}</label>\
+          <span id="val-$\{index\}">3 / 5</span>\
+        </div>\
+        <input type="range" id="dim-$\{index\}" min="1" max="5" step="1" value="3" />\
+      `;\
+      controlsEl.appendChild(group);\
+\
+      group.querySelector("input").addEventListener("input", (e) => \{\
+        const val = Number(e.target.value);\
+        scores[index] = val;\
+        document.getElementById(`val-$\{index\}`).textContent = `$\{val\} / 5`;\
+        chart.data.datasets[0].data = scores;\
+        chart.update();\
+      \});\
+    \});\
+\
+    // 3. Render the Jagged Line Chart\
+    const ctx = document.getElementById("profileChart").getContext("2d");\
+    const chart = new Chart(ctx, \{\
+      type: "line",\
+      data: \{\
+        labels: dimensions,\
+        datasets: [\{\
+          label: "Self-Rating",\
+          data: scores,\
+          borderColor: "#2563eb",\
+          backgroundColor: "rgba(37, 99, 235, 0.12)",\
+          borderWidth: 3,\
+          pointBackgroundColor: "#2563eb",\
+          pointRadius: 6,\
+          fill: true,\
+          tension: 0 // Keeps lines sharp/jagged rather than curved\
+        \}]\
+      \},\
+      options: \{\
+        responsive: true,\
+        maintainAspectRatio: false,\
+        plugins: \{ legend: \{ display: false \} \},\
+        scales: \{\
+          y: \{ min: 0, max: 5, ticks: \{ stepSize: 1 \} \},\
+          x: \{ ticks: \{ maxRotation: 35, minRotation: 20 \} \}\
+        \}\
+      \}\
+    \});\
+\
+    // 4. Download PNG for Canvas Assignment Submission\
+    document.getElementById("downloadBtn").addEventListener("click", () => \{\
+      const link = document.createElement("a");\
+      link.download = "my-jagged-profile.png";\
+      link.href = chart.toBase64Image();\
+      link.click();\
+    \});\
+\
+    // 5. Reset Sliders\
+    document.getElementById("resetBtn").addEventListener("click", () => \{\
+      scores = dimensions.map(() => 3);\
+      dimensions.forEach((_, i) => \{\
+        document.getElementById(`dim-$\{i\}`).value = 3;\
+        document.getElementById(`val-$\{i\}`).textContent = "3 / 5";\
+      \});\
+      chart.data.datasets[0].data = scores;\
+      chart.update();\
+    \});\
+  </script>\
+</body>\
+</html>\
+}
